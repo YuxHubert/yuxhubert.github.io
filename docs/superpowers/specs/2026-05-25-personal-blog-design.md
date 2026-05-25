@@ -1,65 +1,72 @@
-# Personal Blog Website Design
+# 个人博客网站设计规格
 
-## Goal
+## 目标
 
-Create and deploy a personal blog at `https://yuxhubert.github.io/` with a maintainable static-site workflow. The site should be easy to update by adding Markdown posts, and every push to the main branch should trigger continuous integration and deployment through GitHub Pages.
+创建并部署一个个人博客网站，最终访问地址为 `https://yuxhubert.github.io/`。网站需要便于长期维护：以后发布文章时，只需要新增 Markdown 文件并推送代码；每次推送到主分支后，GitHub Actions 自动完成构建和部署。
 
-## Scope
+## 范围
 
-The first release will include:
+第一版包含以下内容：
 
-- An Astro static site using Markdown content.
-- A responsive personal blog interface with a home page, post index, and post detail pages.
-- A small set of starter posts so the site is useful immediately.
-- Global styling for readable long-form writing on desktop and mobile.
-- GitHub Actions CI/CD for build and deployment to GitHub Pages.
-- Git repository setup, remote setup, repository creation through GitHub CLI when available, push, and deployment verification.
+- 使用 Astro 创建静态网站。
+- 使用 Markdown 管理博客文章。
+- 提供响应式个人博客界面，包括首页、文章列表页和文章详情页。
+- 提供少量示例文章，让网站初次上线时不是空白状态。
+- 提供适合长文阅读的全局样式，兼容桌面端和移动端。
+- 配置 GitHub Actions 持续集成和部署，自动发布到 GitHub Pages。
+- 初始化 Git 仓库，配置远程仓库，优先通过 GitHub CLI 创建或复用 `yuxhubert.github.io` 仓库，并完成推送和部署验证。
 
-The first release will not include comments, authentication, CMS editing, search indexing, analytics, database storage, or a custom domain. Those can be added later without changing the core publishing model.
+第一版不包含评论系统、登录认证、后台 CMS、全文搜索、访问统计、数据库、自定义域名。这些功能可以以后按需添加，不影响当前 Markdown 写作和静态部署的核心流程。
 
-## Architecture
+## 技术架构
 
-The site will be built with Astro and generated as static HTML. Blog posts will live as Markdown files under the Astro content area. Astro will parse post metadata such as title, description, date, and tags from frontmatter, then render static routes for the post list and individual posts.
+网站使用 Astro 构建，最终生成静态 HTML、CSS 和 JavaScript 文件。博客文章放在 Astro 的内容目录中，通过 Markdown 文件维护。每篇文章使用 frontmatter 记录标题、描述、日期和标签等元数据。
 
-The project will use npm scripts for local development, type checking where practical, and production builds. The generated output will be deployed by GitHub Actions using the official GitHub Pages Actions flow.
+Astro 会读取文章元数据，生成文章列表页，并为每篇文章生成独立详情页。项目使用 npm 脚本完成本地开发、依赖安装和生产构建。构建产物由 GitHub Actions 上传并部署到 GitHub Pages。
 
-## Pages and Content
+## 页面和内容
 
-The home page will introduce the author and surface recent posts. The posts page will list all posts in reverse chronological order with dates, descriptions, and tags. Each post detail page will provide a focused reading layout with clear typography and navigation back to the post index.
+首页直接作为博客入口，不做营销式落地页。首页会展示作者简介和近期文章。
 
-Starter content will be neutral and easy to replace. The structure will make future publishing simple: create a Markdown file, fill in frontmatter, write the post body, commit, and push.
+文章列表页按时间倒序展示所有文章，每篇文章显示标题、发布日期、描述和标签。
 
-## Visual Design
+文章详情页提供专注阅读的排版，并提供返回文章列表的导航。
 
-The visual direction will be clean, calm, and writing-focused. The layout will avoid a marketing landing page and instead open directly as a usable blog. It will use restrained colors, readable spacing, and responsive navigation. Cards may be used for repeated post previews, but page sections will remain simple and unframed.
+示例文章会使用中性、容易替换的内容。以后新增文章的流程是：创建 Markdown 文件，填写 frontmatter，编写正文，提交并推送。
 
-## CI/CD and Deployment
+## 视觉设计
 
-The GitHub Actions workflow will run on pushes to `main`. It will:
+整体风格以简洁、安静、适合阅读为主。页面会避免复杂装饰和过度营销化的布局，优先保证文字可读性、页面层级清楚、移动端体验稳定。
 
-- Check out the repository.
-- Set up Node.js.
-- Install dependencies with `npm ci`.
-- Build the Astro site.
-- Upload the generated `dist` directory.
-- Deploy to GitHub Pages.
+文章预览可以使用简洁卡片，但页面主体不会堆叠大量装饰性卡片。颜色会保持克制，排版会服务于长期写作和阅读。
 
-The target repository is `yuxhubert/yuxhubert.github.io`, which maps to `https://yuxhubert.github.io/`. GitHub CLI will be the preferred control path for creating or reusing the repository and checking deployment status. If authentication, browser confirmation, or repository settings require user approval, the user will confirm those steps directly.
+## 持续集成和部署
 
-## Error Handling
+GitHub Actions 工作流在 `main` 分支收到 push 后自动运行。流程包括：
 
-Build errors should fail the GitHub Actions workflow before deployment. Missing or malformed post metadata should be caught during the local build where possible. Deployment errors will be inspected through `gh` and GitHub Actions logs, then fixed in the project configuration or repository settings.
+- 拉取仓库代码。
+- 设置 Node.js 环境。
+- 使用 `npm ci` 安装依赖。
+- 构建 Astro 网站。
+- 上传 `dist` 构建目录。
+- 部署到 GitHub Pages。
 
-## Testing and Verification
+目标仓库是 `yuxhubert/yuxhubert.github.io`，对应访问地址为 `https://yuxhubert.github.io/`。后续会优先使用 GitHub CLI 代管仓库创建、远程配置、代码推送和部署状态检查。如果 GitHub 要求网页登录、授权确认、验证码或其他敏感确认，则由用户本人完成确认。
 
-Verification will include:
+## 错误处理
 
-- Local dependency installation.
-- Local production build.
-- Local preview or static inspection of generated output.
-- GitHub Actions workflow status after push.
-- Final check that `https://yuxhubert.github.io/` is reachable after deployment completes.
+如果构建失败，GitHub Actions 应在部署前失败并阻止发布错误版本。文章元数据缺失或格式错误时，尽量在本地构建阶段暴露问题。部署失败时，通过 GitHub CLI 和 Actions 日志定位问题，再修正项目配置或仓库 Pages 设置。
 
-## Implementation Boundaries
+## 测试和验证
 
-The initial implementation should stay small and reliable. It should not introduce a backend, database, CMS, or complex theme system. The priority is a working blog pipeline that can be maintained by editing Markdown and pushing to GitHub.
+实现完成后需要验证：
+
+- 本地依赖安装成功。
+- 本地生产构建成功。
+- 本地预览或静态构建产物检查正常。
+- 推送后 GitHub Actions 工作流通过。
+- 部署完成后 `https://yuxhubert.github.io/` 可以访问。
+
+## 实现边界
+
+第一版保持小而可靠，不引入后端、数据库、CMS 或复杂主题系统。优先完成一个可以长期使用的博客发布流水线：写 Markdown、提交、推送、自动上线。
