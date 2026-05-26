@@ -27,6 +27,7 @@
 - Create: `src/pages/posts/[...slug].astro`，文章详情页。
 - Create: `src/styles/global.css`，全局视觉样式和响应式排版。
 - Create: `public/favicon.svg`，轻量站点图标。
+- Create: `tests/static-site.test.mjs`，验证构建后的首页、文章列表和文章详情 HTML。
 - Create: `.github/workflows/deploy.yml`，GitHub Pages CI/CD 工作流。
 - Modify: `docs/superpowers/specs/2026-05-25-personal-blog-design.md`，仅在实施发现规格需要纠正时修改。
 
@@ -98,7 +99,8 @@ Target content:
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "astro": "^5.0.0"
@@ -284,20 +286,68 @@ Expected: 提交成功。
 - Create: `src/pages/posts/[...slug].astro`
 - Create: `src/styles/global.css`
 - Create: `public/favicon.svg`
+- Create: `tests/static-site.test.mjs`
 
-- [ ] **Step 1: 创建基础布局**
+- [ ] **Step 1: 写静态站点 smoke tests**
+
+Target `tests/static-site.test.mjs`:
+
+```js
+import { readFile } from 'node:fs/promises';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+
+const dist = path.resolve('dist');
+
+async function readBuiltPage(relativePath) {
+  return readFile(path.join(dist, relativePath), 'utf8');
+}
+
+test('homepage introduces the blog and links to recent posts', async () => {
+  const html = await readBuiltPage('index.html');
+  assert.match(html, /Yuxhubert/);
+  assert.match(html, /最近文章/);
+  assert.match(html, /\/posts\/welcome\//);
+});
+
+test('post index lists starter posts', async () => {
+  const html = await readBuiltPage(path.join('posts', 'index.html'));
+  assert.match(html, /全部文章/);
+  assert.match(html, /欢迎来到我的博客/);
+  assert.match(html, /学习笔记/);
+});
+
+test('post detail page renders Markdown content', async () => {
+  const html = await readBuiltPage(path.join('posts', 'welcome', 'index.html'));
+  assert.match(html, /欢迎来到我的博客/);
+  assert.match(html, /Markdown/);
+});
+```
+
+- [ ] **Step 2: 运行测试确认失败**
+
+Run:
+
+```powershell
+npm test
+```
+
+Expected: FAIL because `dist/index.html` or equivalent built pages do not exist yet.
+
+- [ ] **Step 3: 创建基础布局**
 
 `BaseLayout.astro` should accept `title` and `description`, render global navigation, include `global.css`, and expose a `<slot />` for page content.
 
-- [ ] **Step 2: 创建首页**
+- [ ] **Step 4: 创建首页**
 
 `index.astro` should import `getPublishedPosts()`, display a short author intro, and show the latest 3 posts with title, date, description, and tags.
 
-- [ ] **Step 3: 创建文章列表页**
+- [ ] **Step 5: 创建文章列表页**
 
 `posts/index.astro` should list all published posts in reverse chronological order and link to `/posts/<slug>/`.
 
-- [ ] **Step 4: 创建文章详情页**
+- [ ] **Step 6: 创建文章详情页**
 
 `posts/[...slug].astro` should:
 
@@ -319,7 +369,7 @@ const { Content } = await render(post);
 
 Expected: Every Markdown post renders at `/posts/<file-name>/`.
 
-- [ ] **Step 5: 创建全局样式**
+- [ ] **Step 7: 创建全局样式**
 
 `global.css` should cover:
 
@@ -330,11 +380,11 @@ Expected: Every Markdown post renders at `/posts/<file-name>/`.
 - Post list cards with stable spacing.
 - Reduced motion friendly hover/focus states.
 
-- [ ] **Step 6: 添加 favicon**
+- [ ] **Step 8: 添加 favicon**
 
 Use a simple SVG mark in `public/favicon.svg`.
 
-- [ ] **Step 7: 本地构建验证**
+- [ ] **Step 9: 本地构建验证**
 
 Run:
 
@@ -344,7 +394,17 @@ npm run build
 
 Expected: Build exits successfully and creates `dist/`.
 
-- [ ] **Step 8: 本地预览和视觉检查**
+- [ ] **Step 10: 运行 smoke tests 确认通过**
+
+Run:
+
+```powershell
+npm test
+```
+
+Expected: PASS. The tests should read built HTML from `dist/`.
+
+- [ ] **Step 11: 本地预览和视觉检查**
 
 Run:
 
@@ -354,12 +414,12 @@ npm run preview -- --host 127.0.0.1
 
 Expected: Preview server starts. Open the local URL and verify homepage, post list, and post detail page render correctly on desktop and mobile widths.
 
-- [ ] **Step 9: 提交页面和样式**
+- [ ] **Step 12: 提交页面、样式和测试**
 
 Run:
 
 ```powershell
-git add src/layouts src/pages src/styles public/favicon.svg
+git add src/layouts src/pages src/styles public/favicon.svg tests/static-site.test.mjs package.json package-lock.json
 git commit -m "feat: build personal blog pages"
 ```
 
