@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   assertInsideWorkspace,
   createPublishPlan,
+  getNpmCommand,
   getNoreplyEmail,
 } from '../scripts/deploy-pages.mjs';
 
@@ -39,4 +40,9 @@ test('plans the gh-pages publish commands without pushing in dry-run mode', () =
   assert.equal(plan.gitUserEmail, '127934866+YuxHubert@users.noreply.github.com');
   assert.equal(plan.remote, 'https://github.com/YuxHubert/yuxhubert.github.io.git');
   assert.equal(plan.shouldPush, false);
+});
+
+test('uses npm.cmd on Windows when spawning npm without a shell', () => {
+  assert.equal(getNpmCommand('win32'), 'npm.cmd');
+  assert.equal(getNpmCommand('linux'), 'npm');
 });

@@ -34,6 +34,10 @@ export function getNoreplyEmail(user) {
   return `${user.id}+${user.login}@users.noreply.github.com`;
 }
 
+export function getNpmCommand(platform = process.platform) {
+  return platform === 'win32' ? 'npm.cmd' : 'npm';
+}
+
 export function createPublishPlan({
   dryRun = false,
   owner = DEFAULT_OWNER,
@@ -63,7 +67,8 @@ function run(command, args, options = {}) {
   });
 
   if (result.status !== 0) {
-    const message = result.stderr || result.stdout || `${command} failed`;
+    const message =
+      result.error?.message || result.stderr || result.stdout || `${command} failed`;
     throw new Error(message.trim());
   }
 
@@ -124,7 +129,7 @@ export async function publishPages({
     return plan;
   }
 
-  run('npm', ['run', 'build'], { cwd: workspace });
+  run(getNpmCommand(), ['run', 'build'], { cwd: workspace });
   await preparePublishDirectory(plan);
 
   run('git', ['init', '-b', 'gh-pages'], { cwd: plan.publishDir });
