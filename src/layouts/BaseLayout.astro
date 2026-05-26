@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Yuxhubert 的个人博客。' } = Astro.props;
+const pageTitle = title === 'Yuxhubert' ? title : `${title} | Yuxhubert`;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="回到首页">
+        <img class="brand-mark" src="/favicon.svg" alt="" width="32" height="32" />
+        <span>Yuxhubert</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>首页</a>
+        <a href="/posts/" aria-current={currentPath.startsWith('/posts') ? 'page' : undefined}>
+          文章
+        </a>
+      </nav>
+    </header>
+
+    <main class="site-main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>用 Markdown 写作，由 Astro 和 GitHub Pages 发布。</p>
+    </footer>
+  </body>
+</html>

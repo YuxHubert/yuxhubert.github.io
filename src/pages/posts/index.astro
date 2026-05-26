@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatPostDate, getPublishedPosts } from '../../lib/posts';
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout title="全部文章" description="Yuxhubert 的全部博客文章。">
+  <section class="page-header" aria-labelledby="posts-title">
+    <p class="eyebrow">Archive</p>
+    <h1 id="posts-title">全部文章</h1>
+    <p class="lead">按时间倒序整理的文章列表。</p>
+  </section>
+
+  <section class="post-list" aria-label="文章列表">
+    {
+      posts.map((post) => (
+        <article class="post-row">
+          <div class="post-meta">
+            <time datetime={post.data.pubDate.toISOString()}>
+              {formatPostDate(post.data.pubDate)}
+            </time>
+          </div>
+          <div>
+            <h2>
+              <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+            </h2>
+            <p>{post.data.description}</p>
+            <div class="tag-list" aria-label="文章标签">
+              {post.data.tags.map((tag) => (
+                <span>{tag}</span>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>
