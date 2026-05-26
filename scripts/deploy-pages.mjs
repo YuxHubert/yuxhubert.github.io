@@ -42,6 +42,27 @@ export function shouldUseShellForCommand(command, platform = process.platform) {
   return platform === 'win32' && command.toLowerCase().endsWith('.cmd');
 }
 
+export function getBuildInvocation({
+  env = process.env,
+  execPath = process.execPath,
+  platform = process.platform,
+} = {}) {
+  if (env.npm_execpath) {
+    return {
+      args: [env.npm_execpath, 'run', 'build'],
+      command: execPath,
+      shell: false,
+    };
+  }
+
+  const command = getNpmCommand(platform);
+  return {
+    args: ['run', 'build'],
+    command,
+    shell: shouldUseShellForCommand(command, platform),
+  };
+}
+
 export function createPublishPlan({
   dryRun = false,
   owner = DEFAULT_OWNER,
@@ -133,7 +154,8 @@ export async function publishPages({
     return plan;
   }
 
-  run(getNpmCommand(), ['run', 'build'], { cwd: workspace });
+  const build = getBuildInvocation();
+  run(build.command, build.args, { cwd: workspace, shell: build.shell });
   await preparePublishDirectory(plan);
 
   run('git', ['init', '-b', 'gh-pages'], { cwd: plan.publishDir });

@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   assertInsideWorkspace,
   createPublishPlan,
+  getBuildInvocation,
   getNpmCommand,
   getNoreplyEmail,
   shouldUseShellForCommand,
@@ -52,4 +53,18 @@ test('runs Windows command shims through a shell', () => {
   assert.equal(shouldUseShellForCommand('npm.cmd', 'win32'), true);
   assert.equal(shouldUseShellForCommand('git', 'win32'), false);
   assert.equal(shouldUseShellForCommand('npm', 'linux'), false);
+});
+
+test('uses npm_execpath for build invocation when available', () => {
+  const invocation = getBuildInvocation({
+    env: { npm_execpath: 'C:/node/npm-cli.js' },
+    execPath: 'C:/node/node.exe',
+    platform: 'win32',
+  });
+
+  assert.deepEqual(invocation, {
+    args: ['C:/node/npm-cli.js', 'run', 'build'],
+    command: 'C:/node/node.exe',
+    shell: false,
+  });
 });
