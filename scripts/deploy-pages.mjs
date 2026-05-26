@@ -38,6 +38,10 @@ export function getNpmCommand(platform = process.platform) {
   return platform === 'win32' ? 'npm.cmd' : 'npm';
 }
 
+export function shouldUseShellForCommand(command, platform = process.platform) {
+  return platform === 'win32' && command.toLowerCase().endsWith('.cmd');
+}
+
 export function createPublishPlan({
   dryRun = false,
   owner = DEFAULT_OWNER,
@@ -62,7 +66,7 @@ function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: options.cwd,
     encoding: 'utf8',
-    shell: false,
+    shell: options.shell ?? shouldUseShellForCommand(command),
     stdio: options.capture ? 'pipe' : 'inherit',
   });
 

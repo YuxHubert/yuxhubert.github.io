@@ -7,6 +7,7 @@ import {
   createPublishPlan,
   getNpmCommand,
   getNoreplyEmail,
+  shouldUseShellForCommand,
 } from '../scripts/deploy-pages.mjs';
 
 test('creates the GitHub noreply email for the authenticated account', () => {
@@ -45,4 +46,10 @@ test('plans the gh-pages publish commands without pushing in dry-run mode', () =
 test('uses npm.cmd on Windows when spawning npm without a shell', () => {
   assert.equal(getNpmCommand('win32'), 'npm.cmd');
   assert.equal(getNpmCommand('linux'), 'npm');
+});
+
+test('runs Windows command shims through a shell', () => {
+  assert.equal(shouldUseShellForCommand('npm.cmd', 'win32'), true);
+  assert.equal(shouldUseShellForCommand('git', 'win32'), false);
+  assert.equal(shouldUseShellForCommand('npm', 'linux'), false);
 });
