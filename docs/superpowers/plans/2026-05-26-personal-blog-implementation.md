@@ -460,7 +460,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build with Astro
-        uses: withastro/action@v5
+            uses: withastro/action@v6
 
   deploy:
     needs: build
@@ -471,7 +471,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 ```
 
 - [ ] **Step 2: 本地构建再次验证**
