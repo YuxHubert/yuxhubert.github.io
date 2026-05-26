@@ -1,5 +1,7 @@
 name: Deploy to GitHub Pages
 
+# Static Astro deployment for yuxhubert.github.io.
+
 on:
   push:
     branches: [main]
